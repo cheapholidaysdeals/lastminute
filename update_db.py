@@ -23,8 +23,11 @@ def run_sync():
     # Rename columns to match your Supabase schema exactly
     df.columns = [c.replace(':', '_').lower() for c in df.columns]
     
-    # FIX: Convert missing/empty values (NaN) to None so JSON doesn't crash
-    df = df.where(pd.notnull(df), None)
+    # FIX: Catch any weird infinite numbers from the Awin pricing
+    df = df.replace([float('inf'), float('-inf')], float('nan'))
+    
+    # FIX: Force Pandas to treat everything as an object, THEN replace empty cells with None
+    df = df.astype(object).where(pd.notnull(df), None)
     
     # Convert to dictionary for Supabase
     data = df.to_dict(orient='records')
