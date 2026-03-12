@@ -14,7 +14,6 @@ def run_sync():
     print("Fetching data from Awin...")
     response = requests.get(feed_url)
     
-    # Save temp file to handle gzip
     with open("data.csv.gz", "wb") as f:
         f.write(response.content)
 
@@ -22,16 +21,16 @@ def run_sync():
     df = pd.read_csv("data.csv.gz", compression='gzip')
     
     # Rename columns to match your Supabase schema exactly
-    # Handling the 'Travel:' prefix which usually becomes 'Travel_...' or similar in DBs
     df.columns = [c.replace(':', '_').lower() for c in df.columns]
+    
+    # FIX: Convert missing/empty values (NaN) to None so JSON doesn't crash
+    df = df.where(pd.notnull(df), None)
     
     # Convert to dictionary for Supabase
     data = df.to_dict(orient='records')
 
     # 3. Upsert to Supabase
-    # We use upsert on 'aw_product_id' or 'id' to prevent duplicates
     print(f"Syncing {len(data)} rows...")
-    # Adjust 'on_conflict' to your primary key (e.g., 'aw_product_id')
     supabase.table("LastMinute").upsert(data, on_conflict="aw_product_id").execute()
     print("Sync complete!")
 
