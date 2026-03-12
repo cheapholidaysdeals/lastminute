@@ -20,13 +20,11 @@ def run_sync():
     # 2. Process with Pandas
     df = pd.read_csv("data.csv.gz", compression='gzip')
     
-    # Rename columns to match your Supabase schema exactly
-    df.columns = [c.replace(':', '_').lower() for c in df.columns]
+    # FIX: We removed the column renaming line because your Supabase 
+    # table perfectly matches the Awin CSV headers already!
     
-    # FIX: Catch any weird infinite numbers from the Awin pricing
+    # Clean up the data for JSON
     df = df.replace([float('inf'), float('-inf')], float('nan'))
-    
-    # FIX: Force Pandas to treat everything as an object, THEN replace empty cells with None
     df = df.astype(object).where(pd.notnull(df), None)
     
     # Convert to dictionary for Supabase
