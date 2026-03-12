@@ -2,20 +2,20 @@ name: Awin to Supabase Sync
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Runs every 6 hours
-  workflow_dispatch:      # Allows manual trigger
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # Updated from v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5  # Updated from v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'  # Updated to a more recent stable version
 
       - name: Install dependencies
         run: pip install -r requirements.txt
